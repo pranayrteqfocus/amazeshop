@@ -125,7 +125,7 @@ class DashboardScreen extends React.Component {
     this.setState({isCheckout:!this.state.isCheckout})
   }
   handleDone = ()=> {
-    this.setState({products:resetProduct,isCheckout:false})
+    this.setState({products:resetProduct,filterData:resetProduct,isCheckout:false})
   }
   handleSearch = (val)=>{
    if(val !== ''){
@@ -134,6 +134,7 @@ class DashboardScreen extends React.Component {
         const textData = val.toUpperCase();
         return itemData.indexOf(textData) > -1;
     });
+    console.log('serch',newData)
     this.setState({
         searchVal:val,
         filterData:newData
@@ -147,7 +148,7 @@ class DashboardScreen extends React.Component {
     const { products,filterData } = this.state;
     let totalQuantity = 0;
     let totalPrice = 0;
-    if(filterData){
+    if(filterData.length > 0){
         filterData.forEach((item) => {
             totalQuantity += item.quantity;
             totalPrice += item.quantity * item.price;
@@ -201,12 +202,12 @@ class DashboardScreen extends React.Component {
       <SafeAreaView style={{ flex: 1 }}>
        <Text style={styles.title}>Welcome to Amaze Shop, {this.state.username}</Text>
        <Searchbar
-        placeholder="Search"
+        placeholder="Search for Product"
         onChangeText={this.handleSearch}
         value={this.state.searchVal}
         />
         <FlatList
-          data={this.state.filterData ? this.state.filterData : this.state.products}
+          data={this.state.filterData.length > 0 ? this.state.filterData : this.state.products}
           renderItem={({ item, index }) => (
             <ListItem
               item={item}
