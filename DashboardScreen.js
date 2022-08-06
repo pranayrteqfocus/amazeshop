@@ -10,7 +10,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as React from "react";
 import { Button as RNButton } from "react-native";
-import { Button, Dialog, Paragraph, Portal, Provider } from "react-native-paper";
+import { Button, Dialog, Paragraph, Portal, Provider, Searchbar } from "react-native-paper";
 const products = [
   { _id: 1, title: "Item 1", price: 50, quantity: 0 },
   { _id: 2, title: "Item 2", price: 29, quantity: 0 },
@@ -85,6 +85,8 @@ class DashboardScreen extends React.Component {
     products,
     username:'',
     isCheckout:false,
+    searchVal:'',
+    filterData:[],
   };
   onSubtract = (item, index) => {
     const products = [...this.state.products];
@@ -125,14 +127,38 @@ class DashboardScreen extends React.Component {
   handleDone = ()=> {
     this.setState({products:resetProduct,isCheckout:false})
   }
+  handleSearch = (val)=>{
+   if(val !== ''){
+    const newData = this.state.products.filter((item)=>{
+        const itemData =item.title ? item.title.toUpperCase() :''.toLowerCase()
+        const textData = val.toUpperCase();
+        return itemData.indexOf(textData) > -1;
+    });
+    this.setState({
+        searchVal:val,
+        filterData:newData
+    });
+   }else{
+    this.setState({searchVal:val});
+   }
+    // console.log('>>>',)
+  }
   render() {
-    const { products } = this.state;
+    const { products,filterData } = this.state;
     let totalQuantity = 0;
     let totalPrice = 0;
-    products.forEach((item) => {
-      totalQuantity += item.quantity;
-      totalPrice += item.quantity * item.price;
-    });
+    if(filterData){
+        filterData.forEach((item) => {
+            totalQuantity += item.quantity;
+            totalPrice += item.quantity * item.price;
+          });
+    }else{
+        products.forEach((item) => {
+            totalQuantity += item.quantity;
+            totalPrice += item.quantity * item.price;
+          });
+    }
+    
 
     const styles = StyleSheet.create({
         container: {
@@ -174,8 +200,13 @@ class DashboardScreen extends React.Component {
     return (
       <SafeAreaView style={{ flex: 1 }}>
        <Text style={styles.title}>Welcome to Amaze Shop, {this.state.username}</Text>
+       <Searchbar
+        placeholder="Search"
+        onChangeText={this.handleSearch}
+        value={this.state.searchVal}
+        />
         <FlatList
-          data={this.state.products}
+          data={this.state.filterData ? this.state.filterData : this.state.products}
           renderItem={({ item, index }) => (
             <ListItem
               item={item}
